@@ -1,0 +1,27 @@
+name: Publish
+
+on:
+  schedule:
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_URI: ${{ secrets.POSTGRES_URI }}
+      TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+      TELEGRAM_GROUP: ${{ secrets.TELEGRAM_GROUP }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Build
+        run: go build ./cmd/itbooks
+
+      - name: Publish
+        run: ./itbooks publish
