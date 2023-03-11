@@ -71,7 +71,7 @@ var publish = &cli.Command{
 			ImageURL: b.Image.String,
 			Title:    b.Title.String,
 			Subtitle: b.Publisher.String,
-			Link:     b.Image.String,
+			Link:     b.URL.String,
 			Text:     b.Description.String,
 		}); err != nil {
 			return err
