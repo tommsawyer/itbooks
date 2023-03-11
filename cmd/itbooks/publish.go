@@ -27,11 +27,11 @@ var publish = &cli.Command{
 			EnvVars: []string{"TELEGRAM_TOKEN"},
 		},
 		&cli.StringFlag{
-			Name:    "telegram-group-id",
-			Usage:   "id of telegram group",
+			Name:    "telegram-channel",
+			Usage:   "name of the telegram channel to which books will be published",
 			Value:   "",
-			Aliases: []string{"g"},
-			EnvVars: []string{"TELEGRAM_GROUP"},
+			Aliases: []string{"c"},
+			EnvVars: []string{"TELEGRAM_CHANNEL"},
 		},
 		&cli.StringFlag{
 			Name:    "isbn",
@@ -67,7 +67,7 @@ var publish = &cli.Command{
 			b = isbnBook
 		}
 
-		if err := telegram.Send(ctx, c.String("telegram-group-id"), telegram.Message{
+		if err := telegram.Send(ctx, c.String("telegram-channel"), telegram.Message{
 			ImageURL: b.Image.String,
 			Title:    b.Title.String,
 			Subtitle: b.Publisher.String,
