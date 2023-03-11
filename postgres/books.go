@@ -71,8 +71,8 @@ func UpsertBook(ctx context.Context, params UpsertBookParams) (int64, error) {
         properties=EXCLUDED.properties,
         publisher=EXCLUDED.publisher,
         description=EXCLUDED.description
-    `).
-		Suffix("RETURNING id").ToSql()
+    `,
+	).Suffix("RETURNING id").ToSql()
 	if err != nil {
 		return 0, err
 	}
