@@ -11,7 +11,7 @@ import (
 )
 
 func piter(ctx context.Context, books chan<- postgres.UpsertBookParams) error {
-	const startPage = "https://www.piter.com/collection/kompyutery-i-internet?page_size=100&order=descending_age&q=&options%5B169105%5D%5B%5D=1717868&only_available=true"
+	const startPage = "https://www.piter.com/collection/kompyutery-i-internet?page_size=100&order=descending_age&q=&options%5B169105%5D%5B%5D=1717868"
 	collector := colly.NewCollector()
 
 	// book links on list page
