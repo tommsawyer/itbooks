@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"context"
+	"errors"
 	"log"
 	"strings"
 
@@ -15,14 +16,14 @@ func piter(ctx context.Context, books chan<- postgres.UpsertBookParams) error {
 
 	// book links on list page
 	collector.OnHTML(".products-list a", func(h *colly.HTMLElement) {
-		if err := h.Request.Visit(h.Attr("href")); err != nil {
+		if err := h.Request.Visit(h.Attr("href")); err != nil && !errors.Is(err, colly.ErrAlreadyVisited) {
 			log.Printf("[piter.com] cannot visit book link on products page: %v", err)
 		}
 	})
 
 	// pagination elements
 	collector.OnHTML(".pagination a", func(h *colly.HTMLElement) {
-		if err := h.Request.Visit(h.Attr("href")); err != nil {
+		if err := h.Request.Visit(h.Attr("href")); err != nil && !errors.Is(err, colly.ErrAlreadyVisited) {
 			log.Printf("[piter.com] cannot visit pagination link: %v", err)
 		}
 	})

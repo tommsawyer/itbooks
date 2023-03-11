@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"context"
+	"errors"
 	"log"
 	"path"
 	"regexp"
@@ -20,7 +21,7 @@ func dmkpress(ctx context.Context, books chan<- postgres.UpsertBookParams) error
 
 	// links on book list
 	collector.OnHTML("#new-products .item-name a", func(h *colly.HTMLElement) {
-		if err := h.Request.Visit(h.Attr("href")); err != nil {
+		if err := h.Request.Visit(h.Attr("href")); err != nil && !errors.Is(err, colly.ErrAlreadyVisited) {
 			log.Printf("[dmkpress.com] cannot visit book page: %v", err)
 		}
 	})
@@ -40,7 +41,7 @@ func dmkpress(ctx context.Context, books chan<- postgres.UpsertBookParams) error
 			return
 		}
 
-		if err := h.Request.Visit(h.Attr("href")); err != nil {
+		if err := h.Request.Visit(h.Attr("href")); err != nil && !errors.Is(err, colly.ErrAlreadyVisited) {
 			log.Printf("[dmkpress.com] cannot visit pagination page: %v", err)
 		}
 	})
