@@ -51,6 +51,9 @@ type UpsertBookParams struct {
 }
 
 // UpsertBook creates book in postgres and returns ID.
+//
+// If row with the same ISBN already exists it will just update fields of existing row
+// and returns id of old book.
 func UpsertBook(ctx context.Context, params UpsertBookParams) (int64, error) {
 	query, args, err := psql.Insert("books").Columns(
 		"isbn", "url", "title", "image",
