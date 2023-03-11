@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -21,6 +22,20 @@ type Book struct {
 	Properties  map[string]string         `db:"properties"`
 	CreatedAt   pgtype.Timestamp          `db:"created_at"`
 	UpdatedAt   pgtype.Timestamp          `db:"updated_at"`
+}
+
+func (b *Book) scan(row pgx.Row) error {
+	return row.Scan(
+		&b.ID,
+		&b.ISBN,
+		&b.URL,
+		&b.Title,
+		&b.Image,
+		&b.Description,
+		&b.Authors,
+		&b.Properties,
+		&b.Publisher,
+	)
 }
 
 // UpsertBookParams is parameters required for inserting book.
@@ -89,17 +104,8 @@ func GetBook(ctx context.Context, id int64) (*Book, error) {
 	}
 
 	var book Book
-	err = getDB(ctx).QueryRow(ctx, query, params...).Scan(
-		&book.ID,
-		&book.ISBN,
-		&book.URL,
-		&book.Title,
-		&book.Image,
-		&book.Description,
-		&book.Authors,
-		&book.Properties,
-		&book.Publisher,
-	)
+	row := getDB(ctx).QueryRow(ctx, query, params...)
+	err = book.scan(row)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get book: %w", err)
 	}
@@ -127,17 +133,8 @@ func GetBookByISBN(ctx context.Context, isbn string) (*Book, error) {
 	}
 
 	var book Book
-	err = getDB(ctx).QueryRow(ctx, query, params...).Scan(
-		&book.ID,
-		&book.ISBN,
-		&book.URL,
-		&book.Title,
-		&book.Image,
-		&book.Description,
-		&book.Authors,
-		&book.Properties,
-		&book.Publisher,
-	)
+	row := getDB(ctx).QueryRow(ctx, query, params...)
+	err = book.scan(row)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get book: %w", err)
 	}
@@ -145,6 +142,7 @@ func GetBookByISBN(ctx context.Context, isbn string) (*Book, error) {
 	return &book, nil
 }
 
+// SetBookPublished sets published flag on book.
 func SetBookPublished(ctx context.Context, id int64, published bool) error {
 	query, params, err := psql.Update("books").
 		Set("published", published).
@@ -199,18 +197,7 @@ func findBooks(ctx context.Context, filter any) ([]*Book, error) {
 
 	for rows.Next() {
 		var book Book
-		err := rows.Scan(
-			&book.ID,
-			&book.ISBN,
-			&book.URL,
-			&book.Title,
-			&book.Image,
-			&book.Description,
-			&book.Authors,
-			&book.Properties,
-			&book.Publisher,
-		)
-		if err != nil {
+		if err := book.scan(rows); err != nil {
 			return nil, fmt.Errorf("cannot scan book: %w", err)
 		}
 
