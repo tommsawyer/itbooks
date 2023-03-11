@@ -7,7 +7,7 @@ test:
 	@ go test ./... -race
 
 lint:
-	@ golangci-lint run
+	@ golangci-lint run --config .golangci.yml
 
 scrape: build
 	@ ./build/itbooks scrape
