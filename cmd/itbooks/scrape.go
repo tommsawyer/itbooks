@@ -12,8 +12,7 @@ var scrape = &cli.Command{
 		&cli.StringFlag{
 			Name:    "postgres-uri",
 			Usage:   "uri to postgres",
-			Value:   "",
-			Aliases: []string{},
+			Value:   "postgres://itbooks:secret@localhost:5432/itbooks?sslmode=disable",
 			EnvVars: []string{"POSTGRES_URI"},
 		},
 		&cli.StringSliceFlag{

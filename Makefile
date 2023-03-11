@@ -1,4 +1,4 @@
-.PHONY: build test lint scrape publish
+.PHONY: build test lint scrape publish postgres migrate down
 
 build:
 	@ go build -o ./build/itbooks ./cmd/itbooks
@@ -14,3 +14,15 @@ scrape: build
 
 publish: build
 	@ ./build/itbooks publish
+
+postgres:
+	@ docker-compose up -d postgres
+
+migrate:
+	@ docker-compose run migrate
+
+down:
+	@ docker-compose down
+
+psql:
+	@ docker-compose exec postgres psql -U itbooks

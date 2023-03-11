@@ -1,0 +1,25 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: itbooks
+      POSTGRES_USER: itbooks
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./postgres/migrations:/migrations
+    command: ["-path", "/migrations", "-database",  "postgres://itbooks:secret@postgres:5432/itbooks?sslmode=disable", "up"]
+
+volumes:
+    pgdata:
+

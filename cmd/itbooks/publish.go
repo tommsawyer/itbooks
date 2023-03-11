@@ -15,7 +15,7 @@ var publish = &cli.Command{
 		&cli.StringFlag{
 			Name:    "postgres-uri",
 			Usage:   "uri to postgres",
-			Value:   "",
+			Value:   "postgres://itbooks:secret@localhost:5432/itbooks?sslmode=disable",
 			Aliases: []string{},
 			EnvVars: []string{"POSTGRES_URI"},
 		},
