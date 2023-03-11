@@ -32,7 +32,6 @@ type UpsertBookParams struct {
 	Description string
 	Authors     []string
 	Publisher   string
-	Published   bool
 	Properties  map[string]string
 }
 
@@ -40,11 +39,10 @@ type UpsertBookParams struct {
 func UpsertBook(ctx context.Context, params UpsertBookParams) (int64, error) {
 	query, args, err := psql.Insert("books").Columns(
 		"isbn", "url", "title", "image",
-		"description", "authors", "properties", "publisher", "published",
+		"description", "authors", "properties", "publisher",
 	).Values(
 		params.ISBN, params.URL, params.Title, params.Image,
-		params.Description, params.Authors, params.Properties,
-		params.Publisher, params.Published,
+		params.Description, params.Authors, params.Properties, params.Publisher,
 	).Suffix(`
       ON CONFLICT(isbn) DO UPDATE 
       SET 

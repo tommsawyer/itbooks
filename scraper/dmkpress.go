@@ -72,7 +72,6 @@ func dmkpress(ctx context.Context, books chan<- postgres.UpsertBookParams) error
 			Description: h.ChildText("#description"),
 			Authors:     authors,
 			Publisher:   "ДМК-Пресс",
-			Published:   false,
 		}
 	})
 

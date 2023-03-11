@@ -78,17 +78,17 @@ func TestFindUnpublishedBooks(t *testing.T) {
 	defer rollback()
 
 	publishedBook := UpsertBookParams{
-		ISBN:      "isbn",
-		Title:     "published",
-		Published: true,
+		ISBN:  "isbn",
+		Title: "published",
 	}
-	_, err := UpsertBook(ctx, publishedBook)
+	publishedID, err := UpsertBook(ctx, publishedBook)
 	is.NoErr(err)
 
+	is.NoErr(SetBookPublished(ctx, publishedID, true))
+
 	unpublishedBook := UpsertBookParams{
-		ISBN:      "isbn2",
-		Title:     "unpublished",
-		Published: false,
+		ISBN:  "isbn2",
+		Title: "unpublished",
 	}
 	id, err := UpsertBook(ctx, unpublishedBook)
 	is.NoErr(err)
