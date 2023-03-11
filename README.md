@@ -2,6 +2,11 @@
 [![Scrape](https://github.com/tommsawyer/itbooks/actions/workflows/scrape.yaml/badge.svg)](https://github.com/tommsawyer/itbooks/actions/workflows/scrape.yaml)
 [![Publish](https://github.com/tommsawyer/itbooks/actions/workflows/publish.yaml/badge.svg)](https://github.com/tommsawyer/itbooks/actions/workflows/publish.yaml)
 
+Fully automated telegram [channel](https://t.me/new_it_books) that publishes all new and upcoming books about IT.
+
+### How it works
+Every day we collect information from book publishers that publish books on IT topics. These books are stored in the database. Another script checks daily for new books and publish them into telegram channel.
+
 ### Local development
 
 1. Install golang, docker and docker-compose
