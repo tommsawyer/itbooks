@@ -9,6 +9,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+var bookColumns = []string{
+	"id",
+	"isbn",
+	"url",
+	"title",
+	"image",
+	"description",
+	"authors",
+	"properties",
+	"publisher",
+}
+
 // Book represents book table in postgres.
 type Book struct {
 	ID          int64                     `db:"id"`
@@ -89,60 +101,12 @@ func UpsertBook(ctx context.Context, params UpsertBookParams) (int64, error) {
 
 // GetBook returns book by id.
 func GetBook(ctx context.Context, id int64) (*Book, error) {
-	query, params, err := psql.Select(
-		"id",
-		"isbn",
-		"url",
-		"title",
-		"image",
-		"description",
-		"authors",
-		"properties",
-		"publisher",
-	).From("books").
-		Where(sq.Eq{"id": id}).
-		ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	var book Book
-	row := getDB(ctx).QueryRow(ctx, query, params...)
-	err = book.scan(row)
-	if err != nil {
-		return nil, fmt.Errorf("cannot get book: %w", err)
-	}
-
-	return &book, nil
+	return getBook(ctx, sq.Eq{"id": id})
 }
 
 // GetBookByISBN returns book by isbn.
 func GetBookByISBN(ctx context.Context, isbn string) (*Book, error) {
-	query, params, err := psql.Select(
-		"id",
-		"isbn",
-		"url",
-		"title",
-		"image",
-		"description",
-		"authors",
-		"properties",
-		"publisher",
-	).From("books").
-		Where(sq.Eq{"isbn": isbn}).
-		ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	var book Book
-	row := getDB(ctx).QueryRow(ctx, query, params...)
-	err = book.scan(row)
-	if err != nil {
-		return nil, fmt.Errorf("cannot get book: %w", err)
-	}
-
-	return &book, nil
+	return getBook(ctx, sq.Eq{"isbn": isbn})
 }
 
 // SetBookPublished sets published flag on book.
@@ -168,19 +132,29 @@ func FindBooks(ctx context.Context) ([]*Book, error) {
 	return findBooks(ctx, nil)
 }
 
-func findBooks(ctx context.Context, filter any) ([]*Book, error) {
-	q := psql.Select(
-		"id",
-		"isbn",
-		"url",
-		"title",
-		"image",
-		"description",
-		"authors",
-		"properties",
-		"publisher",
-	).From("books")
+func getBook(ctx context.Context, filter any) (*Book, error) {
+	q := psql.Select(bookColumns...).From("books")
+	if filter != nil {
+		q = q.Where(filter)
+	}
 
+	query, params, err := q.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var book Book
+	row := getDB(ctx).QueryRow(ctx, query, params...)
+	err = book.scan(row)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get book: %w", err)
+	}
+
+	return &book, nil
+}
+
+func findBooks(ctx context.Context, filter any) ([]*Book, error) {
+	q := psql.Select(bookColumns...).From("books")
 	if filter != nil {
 		q = q.Where(filter)
 	}
