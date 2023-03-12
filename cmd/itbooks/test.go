@@ -20,7 +20,7 @@ var test = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		for book := range scraper.Run(c.Context, c.String("publisher")) {
+		for book := range scraper.Scrape(c.Context, c.String("publisher")) {
 			log.Println("Scraped: ", fmt.Sprintf("%#v", book))
 		}
 

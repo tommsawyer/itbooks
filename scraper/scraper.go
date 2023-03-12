@@ -8,22 +8,22 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-// Publisher is publisher that can be scraped.
+// Site is book publisher that can be scraped.
 // It should send all parsed books to provided books channel.
-type Publisher interface {
-	Parse(context.Context, chan<- Book) error
+type Site interface {
+	Scrape(context.Context, chan<- Book) error
 }
 
-// PublisherFunc is adapter to use funcs as Publishers.
-type PublisherFunc func(context.Context, chan<- Book) error
+// SiteFunc is adapter to use funcs as site scrapers.
+type SiteFunc func(context.Context, chan<- Book) error
 
-func (p PublisherFunc) Parse(ctx context.Context, books chan<- Book) error {
-	return p(ctx, books)
+func (f SiteFunc) Scrape(ctx context.Context, books chan<- Book) error {
+	return f(ctx, books)
 }
 
-var publishers = map[string]Publisher{
-	"piter":    PublisherFunc(piter),
-	"dmkpress": PublisherFunc(dmkpress),
+var sites = map[string]Site{
+	"piter":    SiteFunc(piter),
+	"dmkpress": SiteFunc(dmkpress),
 }
 
 // Book represents parsed book.
@@ -38,34 +38,34 @@ type Book struct {
 	Details     map[string]string
 }
 
-// Run will scrape provided publishers.
-func Run(ctx context.Context, names ...string) <-chan Book {
-	publishersToScrape := make([]Publisher, 0, len(names))
+// Scrape will scrape provided sites.
+func Scrape(ctx context.Context, names ...string) <-chan Book {
+	sitesToScrape := make([]Site, 0, len(names))
 	for _, name := range names {
-		publishersToScrape = append(publishersToScrape, publishers[name])
+		sitesToScrape = append(sitesToScrape, sites[name])
 	}
 
-	return run(ctx, publishersToScrape...)
+	return run(ctx, sitesToScrape...)
 }
 
-// RunAll runs all scrapers.
-func RunAll(ctx context.Context) <-chan Book {
-	return run(ctx, maps.Values(publishers)...)
+// ScrapeAll runs all scrapers.
+func ScrapeAll(ctx context.Context) <-chan Book {
+	return run(ctx, maps.Values(sites)...)
 }
 
-func run(ctx context.Context, publishers ...Publisher) <-chan Book {
+func run(ctx context.Context, sites ...Site) <-chan Book {
 	books := make(chan Book)
 
 	var wg sync.WaitGroup
-	wg.Add(len(publishers))
-	for _, publisher := range publishers {
-		go func(publisher Publisher) {
+	wg.Add(len(sites))
+	for _, site := range sites {
+		go func(site Site) {
 			defer wg.Done()
 
-			if err := publisher.Parse(ctx, books); err != nil {
+			if err := site.Scrape(ctx, books); err != nil {
 				log.Print(err)
 			}
-		}(publisher)
+		}(site)
 	}
 
 	go func() {

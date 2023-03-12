@@ -9,7 +9,7 @@ import (
 
 func TestScraperParsesOneBook(t *testing.T) {
 	is := is.New(t)
-	publisher := &mockPublisher{
+	site := &mockSite{
 		book: Book{
 			URL:         "url",
 			ISBN:        "isbn",
@@ -22,16 +22,16 @@ func TestScraperParsesOneBook(t *testing.T) {
 		},
 	}
 
-	parsedBook := <-run(context.Background(), publisher)
+	parsedBook := <-run(context.Background(), site)
 
-	is.Equal(parsedBook, publisher.book)
+	is.Equal(parsedBook, site.book)
 }
 
-type mockPublisher struct {
+type mockSite struct {
 	book Book
 }
 
-func (p *mockPublisher) Parse(ctx context.Context, books chan<- Book) error {
+func (p *mockSite) Scrape(ctx context.Context, books chan<- Book) error {
 	books <- p.book
 	return nil
 }

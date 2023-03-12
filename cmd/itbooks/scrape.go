@@ -19,10 +19,10 @@ var scrape = &cli.Command{
 			EnvVars: []string{"POSTGRES_URI"},
 		},
 		&cli.StringSliceFlag{
-			Name:    "publishers",
-			Usage:   "publishers that needed to be scraped. All publishers if empty",
-			Aliases: []string{"p"},
-			EnvVars: []string{"PUBLISHERS"},
+			Name:    "sites",
+			Usage:   "sites that needed to be scraped. All sites if empty",
+			Aliases: []string{"s"},
+			EnvVars: []string{"SITES"},
 		},
 	},
 	Before: connectToPostgres,
@@ -30,11 +30,11 @@ var scrape = &cli.Command{
 		ctx := c.Context
 
 		var books <-chan scraper.Book
-		publishers := c.StringSlice("publishers")
-		if len(publishers) == 0 {
-			books = scraper.RunAll(ctx)
+		sites := c.StringSlice("sites")
+		if len(sites) == 0 {
+			books = scraper.ScrapeAll(ctx)
 		} else {
-			books = scraper.Run(ctx, publishers...)
+			books = scraper.Scrape(ctx, sites...)
 		}
 
 		for book := range books {
