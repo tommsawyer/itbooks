@@ -29,7 +29,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func runAndRollback(t *testing.T) (context.Context, *is.I, func()) {
+func testTransaction(t *testing.T) (context.Context, *is.I, func()) {
 	ctx := context.Background()
 	db := getDB(ctx)
 	tx, err := db.Begin(ctx)
