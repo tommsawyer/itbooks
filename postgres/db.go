@@ -3,12 +3,10 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"testing"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/matryer/is"
 )
 
 var psql = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
@@ -33,44 +31,6 @@ func Connect(ctx context.Context, postgresURI string) error {
 }
 
 type transactionKey struct{}
-
-// RunInTransaction runs provided callback in transaction.
-// Commits if callback returns nil-error, rollback otherwise.
-func RunInTransaction(ctx context.Context, cb func(ctx context.Context) error) error {
-	db := getDB(ctx)
-	tx, err := db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-
-	ctx = context.WithValue(ctx, transactionKey{}, tx)
-
-	err = cb(ctx)
-	if err != nil {
-		return tx.Rollback(ctx)
-	}
-
-	return tx.Commit(ctx)
-}
-
-// RunAndRollback run transaction and rollbacks everything.
-// Used in tests only.
-func RunAndRollback(t *testing.T) (context.Context, *is.I, func()) {
-	ctx := context.Background()
-	db := getDB(ctx)
-	tx, err := db.Begin(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	ctx = context.WithValue(ctx, transactionKey{}, tx)
-
-	return ctx, is.New(t), func() {
-		if err := tx.Rollback(ctx); err != nil {
-			t.Errorf("cannot rollback transcation: %v", err)
-		}
-	}
-}
 
 // getDB returns transaction attached to context
 // or global database connection.

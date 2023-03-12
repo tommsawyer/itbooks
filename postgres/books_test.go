@@ -7,7 +7,7 @@ import (
 )
 
 func TestUpsertBookInsertUnexistingBook(t *testing.T) {
-	ctx, is, rollback := RunAndRollback(t)
+	ctx, is, rollback := runAndRollback(t)
 	defer rollback()
 
 	params := UpsertBookParams{
@@ -32,7 +32,7 @@ func TestUpsertBookInsertUnexistingBook(t *testing.T) {
 }
 
 func TestUpsertBookWithTheSameISBNUpdatesBook(t *testing.T) {
-	ctx, is, rollback := RunAndRollback(t)
+	ctx, is, rollback := runAndRollback(t)
 	defer rollback()
 
 	params := UpsertBookParams{
@@ -74,7 +74,7 @@ func TestUpsertBookWithTheSameISBNUpdatesBook(t *testing.T) {
 }
 
 func TestFindUnpublishedBooks(t *testing.T) {
-	ctx, is, rollback := RunAndRollback(t)
+	ctx, is, rollback := runAndRollback(t)
 	defer rollback()
 
 	publishedBook := UpsertBookParams{
