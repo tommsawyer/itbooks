@@ -10,10 +10,9 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly"
-	"github.com/tommsawyer/itbooks/postgres"
 )
 
-func dmkpress(ctx context.Context, books chan<- postgres.UpsertBookParams) error {
+func dmkpress(ctx context.Context, books chan<- Book) error {
 	const startPage = "https://dmkpress.com/catalog/computer/?&filter%5Bavailable%5D=on&filter%5Bprice%5D%5Bfrom%5D=1&filter%5Bprice%5D%5Bto%5D=2999&filter%5Brelease_date%5D%5Bfrom%5D=1041379200&filter%5Brelease_date%5D%5Bto%5D=1767225600&filter%5Btranslator%5D=&filter%5Bformat%5D=&filter%5Bbumaga%5D=&filter%5Boblozhka%5D=&order_filter%5Brelease_date%5D=1"
 	collector := colly.NewCollector()
 
@@ -64,11 +63,11 @@ func dmkpress(ctx context.Context, books chan<- postgres.UpsertBookParams) error
 			}
 		}
 
-		books <- postgres.UpsertBookParams{
+		books <- Book{
 			ISBN:        path.Base(h.Request.URL.String()),
 			URL:         h.Request.URL.String(),
 			Title:       h.ChildText("span[itemprop=name]"),
-			Image:       h.Request.AbsoluteURL(h.ChildAttr(".card-img", "src")),
+			ImageURL:    h.Request.AbsoluteURL(h.ChildAttr(".card-img", "src")),
 			Description: h.ChildText("#description"),
 			Authors:     authors,
 			Publisher:   "ДМК-Пресс",

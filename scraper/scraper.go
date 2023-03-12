@@ -6,20 +6,19 @@ import (
 	"log"
 	"sync"
 
-	"github.com/tommsawyer/itbooks/postgres"
 	"golang.org/x/exp/maps"
 )
 
 // Publisher is publisher that can be scraped.
 // It should send all parsed books to provided books channel.
 type Publisher interface {
-	Parse(context.Context, chan<- postgres.UpsertBookParams) error
+	Parse(context.Context, chan<- Book) error
 }
 
 // PublisherFunc is adapter to use funcs as Publishers.
-type PublisherFunc func(context.Context, chan<- postgres.UpsertBookParams) error
+type PublisherFunc func(context.Context, chan<- Book) error
 
-func (p PublisherFunc) Parse(ctx context.Context, books chan<- postgres.UpsertBookParams) error {
+func (p PublisherFunc) Parse(ctx context.Context, books chan<- Book) error {
 	return p(ctx, books)
 }
 
@@ -28,25 +27,37 @@ var publishers = map[string]Publisher{
 	"dmkpress": PublisherFunc(dmkpress),
 }
 
+// Book represents parsed book.
+type Book struct {
+	URL         string
+	ImageURL    string
+	ISBN        string
+	Title       string
+	Authors     []string
+	Description string
+	Publisher   string
+	Details     map[string]string
+}
+
 // Run will scrape provided publishers.
-func Run(ctx context.Context, names ...string) {
+func Run(ctx context.Context, names ...string) <-chan Book {
 	publishersToScrape := make([]Publisher, 0, len(names))
 	for _, name := range names {
 		publishersToScrape = append(publishersToScrape, publishers[name])
 	}
 
-	run(ctx, publishersToScrape...)
+	return run(ctx, publishersToScrape...)
 }
 
 // RunAll runs all scrapers.
-func RunAll(ctx context.Context) {
-	run(ctx, maps.Values(publishers)...)
+func RunAll(ctx context.Context) <-chan Book {
+	return run(ctx, maps.Values(publishers)...)
 }
 
 // Test will just log scraper events.
 func Test(ctx context.Context, name string) {
 	publisher := publishers[name]
-	books := make(chan postgres.UpsertBookParams)
+	books := make(chan Book)
 
 	go func() {
 		defer close(books)
@@ -60,8 +71,8 @@ func Test(ctx context.Context, name string) {
 	}
 }
 
-func run(ctx context.Context, publishers ...Publisher) {
-	books := make(chan postgres.UpsertBookParams)
+func run(ctx context.Context, publishers ...Publisher) <-chan Book {
+	books := make(chan Book)
 
 	var wg sync.WaitGroup
 	wg.Add(len(publishers))
@@ -80,9 +91,5 @@ func run(ctx context.Context, publishers ...Publisher) {
 		close(books)
 	}()
 
-	for book := range books {
-		if _, err := postgres.UpsertBook(ctx, book); err != nil {
-			log.Print(err)
-		}
-	}
+	return books
 }

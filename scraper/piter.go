@@ -7,10 +7,9 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly"
-	"github.com/tommsawyer/itbooks/postgres"
 )
 
-func piter(ctx context.Context, books chan<- postgres.UpsertBookParams) error {
+func piter(ctx context.Context, books chan<- Book) error {
 	const startPage = "https://www.piter.com/collection/kompyutery-i-internet?page_size=100&order=descending_age&q=&options%5B169105%5D%5B%5D=1717868"
 	collector := colly.NewCollector()
 
@@ -36,14 +35,14 @@ func piter(ctx context.Context, books chan<- postgres.UpsertBookParams) error {
 		}
 		img := h.DOM.Find(".coverProduct").AttrOr("src", "")
 
-		books <- postgres.UpsertBookParams{
+		books <- Book{
 			ISBN:        h.ChildText("li:nth-child(7) .grid-7"),
 			URL:         h.Request.URL.String(),
 			Title:       h.ChildText(".product-info h1"),
 			Authors:     authors,
-			Image:       img,
+			ImageURL:    img,
 			Description: h.DOM.Parent().Find("#tab-1").Text(),
-			Properties: map[string]string{
+			Details: map[string]string{
 				"year": h.ChildText("li:nth-child(2) .grid-7"),
 			},
 			Publisher: "Питер",
