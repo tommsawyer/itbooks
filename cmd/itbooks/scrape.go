@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/tommsawyer/itbooks/postgres"
 	"github.com/tommsawyer/itbooks/scraper"
@@ -9,8 +10,9 @@ import (
 )
 
 var scrape = &cli.Command{
-	Name:  "scrape",
-	Usage: "run scrapers",
+	Name:        "scrape",
+	Usage:       "run scrapers",
+	Subcommands: []*cli.Command{test},
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:    "postgres-uri",
@@ -50,6 +52,28 @@ var scrape = &cli.Command{
 			}); err != nil {
 				return fmt.Errorf("cannot save book: %w", err)
 			}
+		}
+
+		return nil
+	},
+}
+
+var test = &cli.Command{
+	Name:  "test",
+	Usage: "just print scraped books to stdout, do not save them. Useful for debugging",
+	Action: func(c *cli.Context) error {
+		ctx := c.Context
+
+		var books <-chan scraper.Book
+		sites := c.StringSlice("sites")
+		if len(sites) == 0 {
+			books = scraper.ScrapeAll(ctx)
+		} else {
+			books = scraper.Scrape(ctx, sites...)
+		}
+
+		for book := range books {
+			log.Printf("Scraped: %#v\n", book)
 		}
 
 		return nil
