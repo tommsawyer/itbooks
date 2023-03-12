@@ -9,8 +9,10 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-var psql = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-var db DB
+var (
+	psql = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+	db   DB
+)
 
 // DB is postgres database.
 type DB interface {
@@ -21,10 +23,10 @@ type DB interface {
 }
 
 // Connect connects to postgres.
-func Connect(ctx context.Context, postgresURI string) error {
-	conn, err := pgx.Connect(ctx, postgresURI)
+func Connect(ctx context.Context, uri string) error {
+	conn, err := pgx.Connect(ctx, uri)
 	if err != nil {
-		return fmt.Errorf("failed to connect to postgres: %v", err)
+		return fmt.Errorf("failed to connect to postgres: %w", err)
 	}
 	db = conn
 	return nil

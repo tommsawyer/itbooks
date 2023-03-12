@@ -19,6 +19,8 @@ var bookColumns = []string{
 	"authors",
 	"properties",
 	"publisher",
+	"created_at",
+	"updated_at",
 }
 
 // Book represents book table in postgres.
@@ -47,6 +49,8 @@ func (b *Book) scan(row pgx.Row) error {
 		&b.Authors,
 		&b.Properties,
 		&b.Publisher,
+		&b.CreatedAt,
+		&b.UpdatedAt,
 	)
 }
 
