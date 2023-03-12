@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/tommsawyer/itbooks/scraper"
 	"github.com/urfave/cli/v2"
 )
@@ -17,7 +20,10 @@ var test = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		scraper.Test(c.Context, c.String("publisher"))
+		for book := range scraper.Run(c.Context, c.String("publisher")) {
+			log.Println("Scraped: ", fmt.Sprintf("%#v", book))
+		}
+
 		return nil
 	},
 }

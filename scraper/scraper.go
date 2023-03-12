@@ -2,7 +2,6 @@ package scraper
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"sync"
 
@@ -52,23 +51,6 @@ func Run(ctx context.Context, names ...string) <-chan Book {
 // RunAll runs all scrapers.
 func RunAll(ctx context.Context) <-chan Book {
 	return run(ctx, maps.Values(publishers)...)
-}
-
-// Test will just log scraper events.
-func Test(ctx context.Context, name string) {
-	publisher := publishers[name]
-	books := make(chan Book)
-
-	go func() {
-		defer close(books)
-		if err := publisher.Parse(ctx, books); err != nil {
-			log.Println(err)
-		}
-	}()
-
-	for book := range books {
-		log.Println("Scraped: ", fmt.Sprintf("%#v", book))
-	}
 }
 
 func run(ctx context.Context, publishers ...Publisher) <-chan Book {
