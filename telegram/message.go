@@ -9,6 +9,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+const maxTelegramMessageSize = 1024
+
 var (
 	//go:embed templates/*
 	templatesDir embed.FS
@@ -33,10 +35,10 @@ type Message struct {
 	Text     string
 }
 
-func (msg Message) photoUpload(channel string) (tgbotapi.Chattable, error) {
+func (msg *Message) imageWithCaption(channel string) (tgbotapi.PhotoConfig, error) {
 	text, err := msg.markdown()
 	if err != nil {
-		return nil, err
+		return tgbotapi.PhotoConfig{}, err
 	}
 
 	upload := tgbotapi.NewPhotoToChannel(
@@ -49,7 +51,7 @@ func (msg Message) photoUpload(channel string) (tgbotapi.Chattable, error) {
 	return upload, nil
 }
 
-func (msg Message) markdown() (string, error) {
+func (msg *Message) markdown() (string, error) {
 	var builder strings.Builder
 
 	if err := messageTemplates.ExecuteTemplate(&builder, "book.md", msg); err != nil {
@@ -59,12 +61,12 @@ func (msg Message) markdown() (string, error) {
 	return msg.truncate(builder.String()), nil
 }
 
-func (msg Message) truncate(s string) string {
-	const maxTelegramMessageSize = 1024
-
+func (msg *Message) truncate(s string) string {
 	if utf8.RuneCountInString(s) <= maxTelegramMessageSize {
 		return s
 	}
 
-	return string([]rune(s)[:maxTelegramMessageSize-3]) + tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, "...")
+	dots := tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, "...")
+
+	return string([]rune(s)[:maxTelegramMessageSize-utf8.RuneCountInString(dots)]) + dots
 }

@@ -22,8 +22,8 @@ func (f SiteFunc) Scrape(ctx context.Context, books chan<- Book) error {
 }
 
 var sites = map[string]Site{
-	"piter":    SiteFunc(piter),
-	"dmkpress": SiteFunc(dmkpress),
+	"piter":    SiteFunc(scrapePiter),
+	"dmkpress": SiteFunc(scrapeDMKPress),
 }
 
 // Book represents parsed book.
