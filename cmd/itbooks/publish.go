@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/tommsawyer/itbooks/postgres"
 	"github.com/tommsawyer/itbooks/telegram"
 	"github.com/urfave/cli/v2"
@@ -47,7 +48,7 @@ var publish = &cli.Command{
 		var b *postgres.Book
 		isbn := c.String("isbn")
 		if isbn == "" {
-			unpublished, err := postgres.FindUnpublishedBooks(ctx)
+			unpublished, err := postgres.FindBooks(ctx, sq.Eq{"published": false})
 			if err != nil {
 				return err
 			}
@@ -59,7 +60,7 @@ var publish = &cli.Command{
 
 			b = unpublished[0]
 		} else {
-			isbnBook, err := postgres.GetBookByISBN(ctx, isbn)
+			isbnBook, err := postgres.GetBook(ctx, sq.Eq{"isbn": isbn})
 			if err != nil {
 				return err
 			}
@@ -77,6 +78,8 @@ var publish = &cli.Command{
 			return err
 		}
 
-		return postgres.SetBookPublished(ctx, b.ID, true)
+		return postgres.UpdateBook(ctx, b.ID, postgres.Fields{
+			"published": true,
+		})
 	},
 }

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
@@ -103,20 +104,11 @@ func UpsertBook(ctx context.Context, params UpsertBookParams) (int64, error) {
 	return id, nil
 }
 
-// GetBook returns book by id.
-func GetBook(ctx context.Context, id int64) (*Book, error) {
-	return getBook(ctx, sq.Eq{"id": id})
-}
-
-// GetBookByISBN returns book by isbn.
-func GetBookByISBN(ctx context.Context, isbn string) (*Book, error) {
-	return getBook(ctx, sq.Eq{"isbn": isbn})
-}
-
-// SetBookPublished sets published flag on book.
-func SetBookPublished(ctx context.Context, id int64, published bool) error {
+// UpdateBook updates given fields on book.
+func UpdateBook(ctx context.Context, id int64, fields Fields) error {
 	query, params, err := psql.Update("books").
-		Set("published", published).
+		SetMap(fields).
+		Set("updated_at", time.Now().UTC()).
 		Where(sq.Eq{"id": id}).ToSql()
 	if err != nil {
 		return err
@@ -126,23 +118,11 @@ func SetBookPublished(ctx context.Context, id int64, published bool) error {
 	return err
 }
 
-// FindUnpublishedBooks returns unpublished books.
-func FindUnpublishedBooks(ctx context.Context) ([]*Book, error) {
-	return findBooks(ctx, sq.Eq{"published": false})
-}
-
-// FindBooks returns all books.
-func FindBooks(ctx context.Context) ([]*Book, error) {
-	return findBooks(ctx, nil)
-}
-
-func getBook(ctx context.Context, filter any) (*Book, error) {
-	q := psql.Select(bookColumns...).From("books")
-	if filter != nil {
-		q = q.Where(filter)
-	}
-
-	query, params, err := q.ToSql()
+// GetBook returns first found book by given filter.
+//
+// Use squirrel for filtering, e.g. postgres.GetBook(ctx, sq.Eq{"id": id}) to get book by id.
+func GetBook(ctx context.Context, filter any) (*Book, error) {
+	query, params, err := psql.Select(bookColumns...).From("books").ToSql()
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +137,10 @@ func getBook(ctx context.Context, filter any) (*Book, error) {
 	return &book, nil
 }
 
-func findBooks(ctx context.Context, filter any) ([]*Book, error) {
+// FindBooks returns books by given filter.
+//
+// Use squirrel for filtering, e.g. postgres.FindBooks(ctx, sq.Eq{"published": false}) to get books that aren't published yet.
+func FindBooks(ctx context.Context, filter any) ([]*Book, error) {
 	q := psql.Select(bookColumns...).From("books")
 	if filter != nil {
 		q = q.Where(filter)

@@ -3,6 +3,7 @@ package postgres
 import (
 	"testing"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/matryer/is"
 )
 
@@ -25,7 +26,7 @@ func TestUpsertBookInsertUnexistingBook(t *testing.T) {
 	id, err := UpsertBook(ctx, params)
 	is.NoErr(err) // we can create book
 
-	book, err := GetBook(ctx, id)
+	book, err := GetBook(ctx, sq.Eq{"id": id})
 	is.NoErr(err) // we should be able to get created book by id
 
 	assertBookFieldsMatch(is, id, book, params)
@@ -67,13 +68,13 @@ func TestUpsertBookWithTheSameISBNUpdatesBook(t *testing.T) {
 
 	is.Equal(oldID, newID) // book should be updated, not created
 
-	book, err := GetBook(ctx, newID)
+	book, err := GetBook(ctx, sq.Eq{"id": newID})
 	is.NoErr(err) // we should be able to get updated book by id
 
 	assertBookFieldsMatch(is, newID, book, updatedParams)
 }
 
-func TestFindUnpublishedBooks(t *testing.T) {
+func TestFindBooks(t *testing.T) {
 	ctx, is, rollback := testTransaction(t)
 	defer rollback()
 
@@ -84,7 +85,9 @@ func TestFindUnpublishedBooks(t *testing.T) {
 	publishedID, err := UpsertBook(ctx, publishedBook)
 	is.NoErr(err)
 
-	is.NoErr(SetBookPublished(ctx, publishedID, true))
+	is.NoErr(UpdateBook(ctx, publishedID, Fields{
+		"published": true,
+	}))
 
 	unpublishedBook := UpsertBookParams{
 		ISBN:  "isbn2",
@@ -93,7 +96,7 @@ func TestFindUnpublishedBooks(t *testing.T) {
 	id, err := UpsertBook(ctx, unpublishedBook)
 	is.NoErr(err)
 
-	books, err := FindUnpublishedBooks(ctx)
+	books, err := FindBooks(ctx, sq.Eq{"published": false})
 	is.NoErr(err)
 
 	is.Equal(len(books), 1)

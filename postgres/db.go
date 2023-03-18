@@ -14,6 +14,9 @@ var (
 	db   DB
 )
 
+// Fields is used for update queries.
+type Fields = map[string]any
+
 // DB is postgres database.
 type DB interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
