@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 	"flag"
-	"log"
+	"fmt"
 	"os"
 	"testing"
 
@@ -17,11 +17,13 @@ func TestMain(m *testing.M) {
 
 	uri, stopPostgres, err := postgrestest.RunContainer(ctx, testing.Verbose())
 	if err != nil {
-		log.Fatalf("cannot run testing postgres: %v", err)
+		fmt.Fprintf(os.Stderr, "cannot run testing postgres: %v", err)
+		os.Exit(1)
 	}
 
 	if err := Connect(ctx, uri); err != nil {
-		log.Fatalf("cannot connect to testing postgres: %v", err)
+		fmt.Fprintf(os.Stderr, "cannot connect to testing postgres: %v", err)
+		os.Exit(1)
 	}
 
 	code := m.Run()

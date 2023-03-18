@@ -3,6 +3,7 @@ package postgrestest
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -39,16 +40,16 @@ func RunContainer(ctx context.Context, verbose bool) (uri string, cleanup func()
 		Started:          true,
 	})
 	if err != nil {
-		log.Fatal(err)
+		return "", nil, err
 	}
 
 	endpoint, err := postgresContainer.Endpoint(ctx, "")
 	if err != nil {
-		log.Fatalf("failed to get postgres endpoint: %v", err)
+		return "", nil, fmt.Errorf("failed to get postgres endpoint: %v", err)
 	}
 	postgresURI := "postgres://postgres:secret@" + endpoint + "/test?sslmode=disable"
 	if err := applyMigrations(postgresURI); err != nil {
-		log.Fatalf("failed to apply postgres migrations: %v", err)
+		return "", nil, fmt.Errorf("failed to apply postgres migrations: %v", err)
 	}
 
 	return postgresURI, func() {
@@ -61,7 +62,7 @@ func RunContainer(ctx context.Context, verbose bool) (uri string, cleanup func()
 func applyMigrations(postgresURI string) error {
 	d, err := iofs.New(migrations.Migrations, ".")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	m, err := migrate.NewWithSourceInstance("iofs", d, postgresURI)
@@ -75,6 +76,9 @@ func applyMigrations(postgresURI string) error {
 	err = m.Up()
 	if errors.Is(err, migrate.ErrNoChange) {
 		return nil
+	}
+	if err != nil {
+		return err
 	}
 
 	sourceErr, dbErr := m.Close()
