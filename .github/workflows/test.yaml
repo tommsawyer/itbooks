@@ -6,6 +6,8 @@ jobs:
   test:
     name: go test
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     
     steps:
     - uses: actions/checkout@v3
@@ -16,4 +18,7 @@ jobs:
         go-version: 1.19
 
     - name: Test
-      run: go test ./... -race
+      run: go test ./... -race -coverprofile=coverage.out
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
