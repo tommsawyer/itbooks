@@ -1,6 +1,7 @@
 ![](https://github.com/tommsawyer/itbooks/blob/main/banner.png)
 [![Scrape](https://github.com/tommsawyer/itbooks/actions/workflows/scrape.yaml/badge.svg)](https://github.com/tommsawyer/itbooks/actions/workflows/scrape.yaml)
 [![Publish](https://github.com/tommsawyer/itbooks/actions/workflows/publish.yaml/badge.svg)](https://github.com/tommsawyer/itbooks/actions/workflows/publish.yaml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tommsawyer/itbooks)](https://goreportcard.com/report/github.com/tommsawyer/itbooks)
 
 Fully automated telegram [channel](https://t.me/new_it_books) that publishes all new and upcoming books about IT.
 
