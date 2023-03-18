@@ -1,0 +1,17 @@
+name: Migrate
+
+on:
+  push:
+    branches: [ main ]
+jobs:
+  golang-migrate:
+    runs-on: ubuntu-latest
+    container:
+      image: migrate/migrate
+      env:
+        POSTGRES_URI: ${{ secrets.POSTGRES_URI }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run migrations
+        run: migrate -path './postgres/migrations' -database $POSTGRES_URI up
