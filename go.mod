@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gocolly/colly v1.2.0
-	github.com/golang-migrate/migrate/v4 v4.16.0
+	github.com/golang-migrate/migrate/v4 v4.16.1
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/matryer/is v1.4.1
 	github.com/testcontainers/testcontainers-go v0.20.1
