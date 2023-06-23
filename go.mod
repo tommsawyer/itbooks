@@ -9,9 +9,9 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.16.1
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/matryer/is v1.4.1
-	github.com/testcontainers/testcontainers-go v0.20.1
+	github.com/testcontainers/testcontainers-go v0.21.0
 	github.com/urfave/cli/v2 v2.25.5
-	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0
+	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
 )
 
 require (
@@ -37,7 +37,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/imdario/mergo v0.3.15 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
