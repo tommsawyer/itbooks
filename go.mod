@@ -9,7 +9,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/matryer/is v1.4.1
-	github.com/testcontainers/testcontainers-go v0.24.0
+	github.com/testcontainers/testcontainers-go v0.24.1
 	github.com/urfave/cli/v2 v2.25.7
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
 )
