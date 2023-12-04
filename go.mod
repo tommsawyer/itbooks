@@ -10,7 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/matryer/is v1.4.1
 	github.com/testcontainers/testcontainers-go v0.24.1
-	github.com/urfave/cli/v2 v2.25.7
+	github.com/urfave/cli/v2 v2.26.0
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
 )
 
